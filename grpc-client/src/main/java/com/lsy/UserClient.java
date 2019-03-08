@@ -53,6 +53,8 @@ public class UserClient {
         if (responseModel.getCode()) {
             this.token = responseModel.getToken();
             System.out.println("token "+token);
+        }else{
+            System.out.println("token获取失败");
         }
         userService=UserServiceGrpc.newBlockingStub(channel);
     }
@@ -85,7 +87,7 @@ public class UserClient {
     public static void main(String[] args) throws InterruptedException {
         UserClient client=new UserClient(DEFAULT_HOST,DEFAULT_PORT);
         Map<String,UserServiceProto.User> data=new HashMap<String, UserServiceProto.User>();
-        data=client.getWay(1,"dd","666666",18);
+        data=client.getWay(1,"lsy","666666",18);
         System.out.println(data);
         client.shutdown();
 

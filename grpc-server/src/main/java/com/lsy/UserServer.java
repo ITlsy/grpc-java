@@ -4,6 +4,7 @@ import com.lsy.grpc.api.UserServiceGrpc;
 import com.lsy.grpc.api.login.LoginServiceGrpc;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import io.grpc.ServerInterceptors;
 
 import java.io.IOException;
 
@@ -23,8 +24,10 @@ public class UserServer {
     public UserServer(int port, ServerBuilder<?> serverBuilder){
 
         this.port = port;
-        server = serverBuilder.addService(UserServiceGrpc.bindService(new UserServiceImpl())).build();
-        server = serverBuilder.addService(LoginServiceGrpc.bindService(new LoginServiceImpl())).build();
+        server = serverBuilder.addService(ServerInterceptors.intercept(UserServiceGrpc.bindService(new UserServiceImpl())))
+                .build();
+        server = serverBuilder.addService(ServerInterceptors.intercept(LoginServiceGrpc.bindService(new LoginServiceImpl())))
+                .build();
     }
 
     private void start() throws IOException {
