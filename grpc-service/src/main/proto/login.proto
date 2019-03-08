@@ -1,0 +1,22 @@
+syntax = "proto3";
+option java_multiple_files = false;
+option java_package = "com.lsy.grpc.api.login";
+option java_outer_classname = "LoginServiceProto";
+option objc_class_prefix = "TS";
+
+package com.lsy.grpc.api.login;
+
+service LoginService {
+    rpc CheckLogin (Verify) returns (ResponseModel) {}
+}
+
+message Verify {
+    string username = 1;
+    string password = 2;
+}
+
+message ResponseModel {
+    bool code = 1;
+    string msg = 2;
+    string token = 3;
+}
