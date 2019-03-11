@@ -1,5 +1,6 @@
 package com.lsy;
 
+import com.lsy.grpc.api.HelloServiceGrpc;
 import com.lsy.grpc.api.UserServiceGrpc;
 import com.lsy.grpc.api.login.LoginServiceGrpc;
 import io.grpc.Server;
@@ -24,10 +25,15 @@ public class UserServer {
     public UserServer(int port, ServerBuilder<?> serverBuilder){
 
         this.port = port;
-        server = serverBuilder.addService(ServerInterceptors.intercept(UserServiceGrpc.bindService(new UserServiceImpl())))
-                .build();
         server = serverBuilder.addService(ServerInterceptors.intercept(LoginServiceGrpc.bindService(new LoginServiceImpl())))
                 .build();
+
+        server = serverBuilder.addService(ServerInterceptors.intercept(UserServiceGrpc.bindService(new UserServiceImpl())))
+                .build();
+
+        server = serverBuilder.addService(ServerInterceptors.intercept(HelloServiceGrpc.bindService(new GwHelloServiceImpl())))
+                .build();
+
     }
 
     private void start() throws IOException {

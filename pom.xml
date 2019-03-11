@@ -19,7 +19,7 @@
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-all</artifactId>
-            <version>1.12.0</version>
+            <version>1.9.0</version>
         </dependency>
 
         <dependency>
@@ -69,6 +69,18 @@
             <artifactId>java-jwt</artifactId>
             <version>3.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>googleapis-common-protos</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentracing.contrib</groupId>
+            <artifactId>opentracing-grpc</artifactId>
+            <version>0.0.7</version>
+        </dependency>
+
     </dependencies>
     <build>
         <extensions>

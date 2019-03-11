@@ -30,7 +30,7 @@ public class UserClient {
 
     public UserClient(String host,int port){
         channel= ManagedChannelBuilder.forAddress(host, port)
-                .usePlaintext()
+                .usePlaintext(true)
                 .intercept(new ClientInterceptor() {
                     @Override
                     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
@@ -44,31 +44,35 @@ public class UserClient {
                 .build();
 
         loginService=LoginServiceGrpc.newBlockingStub(channel);
-        LoginServiceProto.ResponseModel responseModel=loginService.checkLogin(
-                LoginServiceProto.Verify.newBuilder()
-                .setUsername("lsy")
-                .setPassword("666666")
-                .build()
-        );
-        if (responseModel.getCode()) {
-            this.token = responseModel.getToken();
-            System.out.println("token "+token);
-        }else{
-            System.out.println("token获取失败");
-        }
         userService=UserServiceGrpc.newBlockingStub(channel);
+
+
     }
 
     public void shutdown() throws InterruptedException{
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
     }
 
-    public Map<String,UserServiceProto.User> getWay(int userId,String userName,String password,int age){
+    public Map<String,UserServiceProto.ResponseModel> getWay(int userId,String userName,String password,int age){
+
+        LoginServiceProto.ResponseModel isAuthenticated=loginService.checkLogin(
+                LoginServiceProto.Verify.newBuilder()
+                        .setUsername(userName)
+                        .setPassword(password)
+                        .build()
+        );
+        if (isAuthenticated.getCode()) {
+            this.token = isAuthenticated.getToken();
+            System.out.println("token认证成功");
+        }else{
+            System.out.println("token获取失败");
+        }
         LoginServiceProto.Verify verify=LoginServiceProto.Verify.newBuilder()
                 .setUsername(userName)
                 .setPassword(password)
                 .build();
-        loginService.checkLogin(verify);
+        LoginServiceProto.ResponseModel result=loginService.checkLogin(verify);
+        System.out.println(result);
         UserServiceProto.User user=UserServiceProto.User.newBuilder()
                 .setName(userName)
                 .setPassword(password)
@@ -78,15 +82,15 @@ public class UserClient {
          UserServiceProto.Integer id=UserServiceProto.Integer.newBuilder().setUserId(userId).build();
          String  name=userService.getUserById(id).getUserDataName();
 
-        Map<String,UserServiceProto.User> data=new HashMap<String, UserServiceProto.User>();
-        data.put(name,user);
+        Map<String,UserServiceProto.ResponseModel> data=new HashMap<String, UserServiceProto.ResponseModel>();
+        data.put(name,responseModel);
         return data;
 
     }
 
     public static void main(String[] args) throws InterruptedException {
         UserClient client=new UserClient(DEFAULT_HOST,DEFAULT_PORT);
-        Map<String,UserServiceProto.User> data=new HashMap<String, UserServiceProto.User>();
+        Map<String,UserServiceProto.ResponseModel> data=new HashMap<String, UserServiceProto.ResponseModel>();
         data=client.getWay(1,"lsy","666666",18);
         System.out.println(data);
         client.shutdown();

@@ -1,0 +1,30 @@
+syntax="proto3";
+
+option java_multiple_files=false;
+option java_package="com.lsy.grpc.api";
+option java_outer_classname="HelloServiceProto";
+option objc_class_prefix = "TS";
+
+package com.lsy.grpc.api;
+
+import "google/api/annotations.proto";
+
+service HelloService{
+    rpc SayHello (GwRequest) returns (Result){
+        //option 表示处理哪些path的请求以及如何处理请求体（参数）
+        option(google.api.http)={
+        post:"/V1/api/hello/{value}"
+        body:"*"
+        };
+    }
+}
+
+message GwRequest {
+    int32 userId=1;
+}
+
+message Result {
+   int32 code = 1;
+    string name=2;
+
+}
