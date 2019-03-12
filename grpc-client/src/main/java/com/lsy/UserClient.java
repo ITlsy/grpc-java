@@ -4,18 +4,23 @@ import com.lsy.grpc.api.UserServiceGrpc;
 import com.lsy.grpc.api.UserServiceProto;
 import com.lsy.grpc.api.login.LoginServiceGrpc;
 import com.lsy.grpc.api.login.LoginServiceProto;
-import com.sun.xml.internal.ws.util.MetadataUtil;
+import com.lsy.util.TraceUtils;
 import io.grpc.*;
 import io.grpc.stub.MetadataUtils;
+import io.opentracing.contrib.grpc.ClientTracingInterceptor;
+import io.opentracing.util.GlobalTracer;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 /**
  * Created by lsy on 2019/3/5.
  */
 public class UserClient {
+    private static final Logger logger = Logger.getLogger(UserClient.class.getName());
+
 
     private static final String DEFAULT_HOST = "127.0.0.1";
 
@@ -29,6 +34,10 @@ public class UserClient {
 
 
     public UserClient(String host,int port){
+        ClientTracingInterceptor tracingInterceptor = new ClientTracingInterceptor(GlobalTracer.get());
+
+        //ClientTracingInterceptor tracingInterceptor=new ClientTracingInterceptor(this.tracer);
+
         channel= ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext(true)
                 .intercept(new ClientInterceptor() {
@@ -43,9 +52,8 @@ public class UserClient {
                 })
                 .build();
 
-        loginService=LoginServiceGrpc.newBlockingStub(channel);
-        userService=UserServiceGrpc.newBlockingStub(channel);
-
+        loginService=LoginServiceGrpc.newBlockingStub(tracingInterceptor.intercept(channel));
+        userService=UserServiceGrpc.newBlockingStub(tracingInterceptor.intercept(channel));
 
     }
 
@@ -54,6 +62,7 @@ public class UserClient {
     }
 
     public Map<String,UserServiceProto.ResponseModel> getWay(int userId,String userName,String password,int age){
+        logger.info("Will try to getWay ...");
 
         LoginServiceProto.ResponseModel isAuthenticated=loginService.checkLogin(
                 LoginServiceProto.Verify.newBuilder()
@@ -83,12 +92,16 @@ public class UserClient {
          String  name=userService.getUserById(id).getUserDataName();
 
         Map<String,UserServiceProto.ResponseModel> data=new HashMap<String, UserServiceProto.ResponseModel>();
+        /*Map<String, Object> map = Maps.newHashMap();
+        map=UserController.addUser();*/
         data.put(name,responseModel);
         return data;
+
 
     }
 
     public static void main(String[] args) throws InterruptedException {
+        TraceUtils.registerTracer("grpc-client");
         UserClient client=new UserClient(DEFAULT_HOST,DEFAULT_PORT);
         Map<String,UserServiceProto.ResponseModel> data=new HashMap<String, UserServiceProto.ResponseModel>();
         data=client.getWay(1,"lsy","666666",18);

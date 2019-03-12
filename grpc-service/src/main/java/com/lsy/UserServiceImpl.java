@@ -27,7 +27,7 @@ public class UserServiceImpl implements UserServiceGrpc.UserService{
 
     @Override
     public void getUserById(UserServiceProto.Integer Integer, StreamObserver<UserServiceProto.UserData> responseObserver) {
-        System.out.println(Integer);
+       // System.out.println(Integer);
         UserServiceProto.Integer userId =UserServiceProto.Integer.newBuilder()
                 .setUserId(Integer.getUserId())
                 .build();
@@ -36,7 +36,6 @@ public class UserServiceImpl implements UserServiceGrpc.UserService{
                 .setCode(true)
                 .setMsg("success")
                 .setUserDataName("lsy").build();
-
         responseObserver.onNext(userData);
         responseObserver.onCompleted();
     }

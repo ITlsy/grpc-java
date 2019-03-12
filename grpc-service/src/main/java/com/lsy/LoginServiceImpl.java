@@ -23,11 +23,13 @@ public class LoginServiceImpl implements LoginServiceGrpc.LoginService {
                     .setToken(JwtUtil.createJwt(userName,password))
                     .build();
             responseObserver.onNext(responseModel);
+            System.out.println(responseModel);
         }else {
             LoginServiceProto.ResponseModel responseModel=LoginServiceProto.ResponseModel.newBuilder().setCode(false)
                     .setMsg("not authenticated")
                     .build();
             responseObserver.onNext(responseModel);
+            System.out.println(responseModel);
         }
         responseObserver.onCompleted();
     }
